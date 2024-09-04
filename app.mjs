@@ -27,14 +27,19 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post("/", async (req, res) => {
+app.post("/create", async (req, res) => {
     const result = await documents.addOne(req.body);
-
     return res.redirect(`/${result.lastID}`);
 });
 
+
 app.get('/new-doc', (req, res) => {
     res.render('new-doc');
+
+app.put("/update", async (req, res) => {
+    const result = await documents.putOne(req.body);
+
+    return res.status(200).send("Updated ");
 });
 
 app.get('/:id', async (req, res) => {
