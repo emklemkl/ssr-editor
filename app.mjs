@@ -29,17 +29,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post("/create", async (req, res) => {
     const result = await documents.addOne(req.body);
-    return res.redirect(`/${result.lastID}`);
+    return res.redirect(`/1`);
 });
 
 
 app.get('/new-doc', (req, res) => {
-    res.render('new-doc');
+    return res.render('new-doc');
 });
 app.put("/update", async (req, res) => {
+    console.log(req.body,"\n\n asdasd");
     const result = await documents.putOne(req.body);
-
-    return res.status(200).send("Updated ");
+    return res.status(200).send("Updated");
 });
 
 app.get('/:id', async (req, res) => {
@@ -54,5 +54,5 @@ app.get('/', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}. \n\n http://localhost:${port}/`);
+    console.log(`Example app listening on port ${port}. \n\n http://localhost:${port}/ \n`);
 });
