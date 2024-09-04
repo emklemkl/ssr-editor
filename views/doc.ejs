@@ -1,12 +1,32 @@
 <%- include('includes/header'); %>
     <h2>Dokument</h2>
-    <form method="POST" action="/" class="new-doc">
+    <form class="new-doc" id="update-doc">
         <label for="title">Titel</label>
-        <input type="text" name="title" value="<%= doc.title %>" />
-
+        <input type="text" name="title" value="<%= doc.title %>"/>
+        <input name="id" value="<%= doc.id %>" type="hidden"/>
+        
         <label for="content">Innehåll</label>
         <textarea name="content"><%= doc.content %></textarea>
 
         <input type="submit" value="Uppdatera" />
     </form>
 <%- include('includes/footer'); %>
+<script>
+    document.getElementById("update-doc").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        var form = event.target;    
+        var data = {
+            title: form.title.value,
+            content: form.content.value,
+            id: form.id.value
+        };
+        const response = fetch("http://localhost:5000/update", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+    });
+</script>
