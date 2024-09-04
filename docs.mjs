@@ -36,7 +36,23 @@ const docs = {
             return await db.run(
                 'INSERT INTO documents (title, content) VALUES (?, ?)',
                 body.title,
-                body.content,
+                body.content
+            );
+        } catch (e) {
+            console.error(e);
+        } finally {
+            await db.close();
+        }
+    },
+
+    putOne: async function putOne(body) {
+        let db = await openDb();
+
+        try {
+            return await db.run(
+                'UPDATE documents SET title = ?, content = ? WHERE id = 2',
+                body.title,
+                body.content
             );
         } catch (e) {
             console.error(e);
