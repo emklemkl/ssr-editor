@@ -33,6 +33,10 @@ app.post("/", async (req, res) => {
     return res.redirect(`/${result.lastID}`);
 });
 
+app.get('/new-doc', (req, res) => {
+    res.render('new-doc');
+});
+
 app.get('/:id', async (req, res) => {
     return res.render(
         "doc",
