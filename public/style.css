@@ -67,3 +67,18 @@ footer {
     padding: 1.4rem 8rem;
     flex-shrink: 0;
 }
+
+button {
+    background-color: #333; /* Mörkgrå bakgrundsfärg */
+    color: #fff; /* Vit text */
+    padding: 10px 20px; /* Lite extra padding för att göra knappen större */
+    border: none; /* Ingen kantlinje */
+    border-radius: 20px; /* Rundare kanter */
+    cursor: pointer; /* Ändrar markören när man hovrar över knappen */
+    font-size: 16px; /* Ökar textstorleken */
+    transition: background-color 0.3s ease; /* Lägger till en mjuk övergång för bakgrundsfärg */
+}
+
+button:hover {
+    background-color: #555; /* Gör bakgrunden lite ljusare när man hovrar */
+}

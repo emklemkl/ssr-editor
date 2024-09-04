@@ -32,6 +32,10 @@ app.post("/create", async (req, res) => {
     return res.redirect(`/${result.lastID}`);
 });
 
+
+app.get('/new-doc', (req, res) => {
+    res.render('new-doc');
+
 app.put("/update", async (req, res) => {
     const result = await documents.putOne(req.body);
 
