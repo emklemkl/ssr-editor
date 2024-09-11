@@ -2,7 +2,7 @@
 DV1677 JSRamverk
 
 ## Kom igång
-För att komma igång med applikationen laddade vi ner zip-filen "ssr-editor". Sedan körde vi 'npm install' och skapade även en '.env' fil för att tilldela applikationen ett portnummer. Vi gjorde även diverse mindre effektiviseringar som förenklar under arbetes gång. Bland annat saknade databasen en id-kolumn vilket gjorde det svårt att välja önskad rad, vi valde även att installera Nodemon-biblioteket för tillgång till "Hot reloads", samt att flytta reset_db.bash till projektroten (med mer). Flera av förändringarna är inte nödvändiga för appens funktionalitet, men de underlättar vår utvecklingsprocess och vi ser det som väl spenderad tid. 
+För att komma igång med applikationen laddade vi ner zip-filen "ssr-editor". Sedan körde vi 'npm install' och skapade även en '.env' fil för att tilldela applikationen ett portnummer. Vi gjorde även diverse mindre effektiviseringar som förenklar under arbetes gång. Bland annat saknade databasen en id-kolumn vilket gjorde det svårt att välja önskad rad, vi valde även att installera Nodemon-biblioteket för tillgång till "Hot reloads", samt att flytta reset_db.bash till projektroten. Flera av förändringarna är inte nödvändiga för appens funktionalitet, men de underlättar vår utvecklingsprocess och vi ser det som väl spenderad tid. 
 Vi skapade ett repo på Emils GitHub och lade till Louise som samarbetspartner.
 
 ## Ramverk
