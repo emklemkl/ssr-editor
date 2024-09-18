@@ -1,5 +1,7 @@
 *.sqlite
+data/db/
 redovisningstext.*
+
 # Logs
 logs
 *.log
