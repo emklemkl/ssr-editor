@@ -2,6 +2,7 @@ version: '3'
 services:
     mongodb:
         image: mongo
+        container_name: mongodb
         environment:
             - MONGO_DATA_DIR=/data/db
         volumes:
@@ -9,8 +10,8 @@ services:
         ports:
             - 27017:27017
         command: mongod --bind_ip_all
-    mongo-client:
-        image: mongo
-        # command: mongo mongodb://mongodb:27017
-        depends_on:
-          - mongodb
+    # mongo-client:
+    #     image: mongo
+    #     # command: mongo mongodb://mongodb:27017
+    #     depends_on:
+    #       - mongodb
