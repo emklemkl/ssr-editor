@@ -1,18 +1,13 @@
-// import sqlite3 from 'sqlite3';
-// import { open } from 'sqlite';
+/**
+ * Connect to the database and setup it with some default data.
+ */
+// "use strict";
 
-// async function openDb() {
-//     let dbFilename = `./db/docs.sqlite`;
+// import { Db, MongoClient as mongo } from "mongodb";
+// const dsn = process.env.DBWEBB_DSN || "mongodb://localhost:27017/mumin";
 
-//     if (process.env.NODE_ENV === 'test') {
-//         dbFilename = "./db/test.sqlite";
-//     }
-
-//     return await open({
-//         filename: dbFilename,
-//         driver: sqlite3.Database
-//     });
-// }
-
+// function connect to Db("collection name")
+//     col = get sleccted collection 
+//     return col 
 
 // export default openDb;
