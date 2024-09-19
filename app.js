@@ -9,6 +9,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import docs from "./docs.js";
+import database from './data/database.js';
 
 const app = express();
 
@@ -33,6 +34,32 @@ app.post("/create", async (req, res) => {
 app.get("/test_route", async (req, res) => {
     // const result = await documents.addOne(req.body);
     res.send("apa")
+});
+
+app.get("/test", async (req, res) => {
+    let db;
+
+    try {
+        db = await database.getDb();
+
+        const filter = { email: email };
+        const keyObject = await db.collection.findOne(filter);
+
+        if (keyObject) {
+            return res.json({ data: keyObject });
+        }
+    } catch (e) {
+        return res.status(500).json({
+            errors: {
+                status: 500,
+                source: "/",
+                title: "Database error",
+                detail: e.message
+            }
+        });
+    } finally {
+        await db.client.close();
+    }
 });
 
 app.listen(port, () => {
