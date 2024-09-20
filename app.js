@@ -37,12 +37,17 @@ app.get("/test_route", async (req, res) => {
 });
 
 app.get("/test", async (req, res) => {
+    // const db = await database.getDb();
+    // const resultSet = await db.collection.find({}).toArray();
+    // await db.client.close();
+    // console.log('dataaaan', resultSet)
+    // res.json(resultSet)
     let db;
 
     try {
         db = await database.getDb();
 
-        const filter = { email: email };
+        const filter = { bor: 'Mumindalen' };
         const keyObject = await db.collection.findOne(filter);
 
         if (keyObject) {
