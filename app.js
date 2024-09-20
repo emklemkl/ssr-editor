@@ -11,24 +11,46 @@ import cors from 'cors';
 import docs from "./docs.js";
 import database from './data/database.js';
 
+import { MongoClient as mongo, ObjectId } from "mongodb";
 const app = express();
-
+app.use(cors())
 app.disable('x-powered-by');
-
-app.use(express.static(path.join(process.cwd(), "public")));
 
 // don't show the log when it is test
 if (process.env.NODE_ENV !== 'test') {
     // use morgan to log at command line
     app.use(morgan('combined')); // 'combined' outputs the Apache style LOGs
 }
-
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const dsn = process.env.DBWEBB_DSN || "mongodb://localhost:27017/mumin";
+const client = await mongo.connect(dsn);
+const db = await client.db();
+const col = await db.collection("crowd")
+
 app.post("/create", async (req, res) => {
-    const result = await documents.addOne(req.body);
-    return res.redirect(`/1`);
+    const result = await col.insertOne(req.body);
+    return res.status(201).send();
+});
+
+app.get('/new-doc', (req, res) => {
+    return res.render('new-doc');
+});
+
+app.put("/update", async (req, res) => {
+    const { _id, ...rest } = req.body
+    await col.updateOne({ _id: ObjectId.createFromHexString(_id) }, { $set: rest })
+    return res.status(204).send();
+});
+
+app.get('/document', async (req, res) => {
+    const result = await col.findOne(req.query)
+    res.status(200).json(result)
+});
+
+app.get('/', async (req, res) => {
+    const result = await col.find().toArray()
+    res.status(200).json(result)
 });
 
 app.get("/test_route", async (req, res) => {
