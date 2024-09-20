@@ -1,25 +1,30 @@
 import { MongoClient } from "mongodb";
+import 'dotenv/config';
 
-const collectionName = "crowd";
+// Miljövariabler
+const dbName = process.env.DB_NAME;
+const collectionName = process.env.COLLECTION_NAME;
+const dbUrl = process.env.DB_URL;
 
 const database = {
     getDb: async function getDb() {
-        let dsn = `mongodb://localhost:27017/mumin`;
-
+        // DSN dynamiskt baserat på NODE_ENV
+        let dsn = `${dbUrl}/${dbName}`;
+        
         if (process.env.NODE_ENV === 'test') {
-            dsn = "mongodb://localhost:27017/test";
+            dsn = `${dbUrl}/test`;  // Testdatabas
         }
 
-        // Use MongoClient to connect
+        // MongoClient ansluter till MongoDB
         const client = new MongoClient(dsn, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
 
-        // Connect to the MongoDB server
+        // Anslut till MongoDB-servern
         await client.connect();
 
-        // Access the database and collection
+        // Åtkomst till databas och collection
         const db = client.db();
         const collection = db.collection(collectionName);
 
