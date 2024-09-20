@@ -5,8 +5,13 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down --remove-orphans",
     "start-dev": "nodemon app.mjs",
-    "test": "nyc --reporter=html --reporter=text --loader=ts-node/esm --reporter=clover mocha 'test/**/*.js' --exit --timeout 10000"
+    "test-quick": "npm run docker:up && sleep 1 && nyc --reporter=html --reporter=text --loader=ts-node/esm --reporter=clover mocha 'test/**/*.js' --exit --timeout 10000 && npm run docker:down",
+    "test": "nyc --reporter=html --reporter=text --loader=ts-node/esm --reporter=clover mocha 'test/**/*.js' --exit --timeout 10000",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix ."
   },
   "keywords": [],
   "author": "",
