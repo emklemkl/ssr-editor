@@ -9,9 +9,9 @@ describe('GET /test_route', () => {
 
     before(async (done) => {
         // Start the server for testing
-        server = app.listen(5000, () => {
-            done();
-        });
+        // server = app.listen(process.env.PORT || 3000, () => {
+        //     done();
+        // });
         try {
             const dsn = "mongodb://localhost:27017/mumin";
             const client = await mongo.connect(dsn);
