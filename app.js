@@ -41,8 +41,9 @@ app.put("/update", async (req, res) => {
     return res.status(204).send();
 });
 
-app.get('/document', async (req, res) => {
-    const result = await col.findOne(req.query)
+app.get('/document/:_id', async (req, res) => {
+    console.log("--->",req.params._id, "<---");
+    const result = await col.findOne(new ObjectId(req.params._id))
     res.status(200).json(result)
 });
 
