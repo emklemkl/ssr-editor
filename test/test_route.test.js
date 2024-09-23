@@ -25,7 +25,7 @@ describe('GET /test_route', () => {
     it.only('Should return Mumintrollet GET', (done) => {
         chai.request(server)
             .get('/document')
-            .send({ _id: "66eac035d99600e68a0e5c24"})
+            .send({ name: "Mumintrollet"})
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res.body.namn).to.equal('Mumintrollet');
