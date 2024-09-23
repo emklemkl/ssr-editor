@@ -9,11 +9,10 @@ describe('GET /test_route', () => {
 
     before(async (done) => {
         // Start the server for testing
-        // server = app.listen(process.env.PORT || 3000, () => {
-        //     done();
-        // });
         try {
             const dsn = "mongodb://localhost:27017/mumin";
+            server = app.listen(process.env.PORT || 5000, () => {
+            });
             const client = await mongo.connect(dsn);
             const db = await client.db();
             const col = await db.collection("crowd")
