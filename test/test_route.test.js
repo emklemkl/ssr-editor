@@ -7,7 +7,7 @@ chai.use(chaiHttp);
 describe('GET /test_route', () => {
     let server;
 
-    before(async (done) => {
+    before(async () => {
         // Start the server for testing
         try {
             const dsn = "mongodb://localhost:27017/mumin";
@@ -19,7 +19,6 @@ describe('GET /test_route', () => {
             const res = await col.insertOne({ name: "Mumintrollet" })
             console.log("Document inserted:", res.insertedId);
             await client.close();
-            done();
         } catch (error) {
             console.error("Error populating the database:", error);
         }
