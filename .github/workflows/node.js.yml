@@ -35,7 +35,7 @@ jobs:
 
     - run: npm install
 
-    - name: Populate db
-      run: node .github/scripts/populate_db.js
+    # - name: Populate db
+    #   run: node .github/scripts/populate_db.js
 
     - run: npm test

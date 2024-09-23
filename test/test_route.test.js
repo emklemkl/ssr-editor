@@ -1,16 +1,28 @@
 import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import app from "../app.js"; // Our app
+import { MongoClient as mongo } from "mongodb";
 chai.use(chaiHttp);
 
 describe('GET /test_route', () => {
     let server;
 
-    before((done) => {
+    before(async (done) => {
         // Start the server for testing
-        server = app.listen(process.env.PORT || 3000, () => {
+        server = app.listen(5000, () => {
             done();
         });
+        try {
+            const dsn = "mongodb://localhost:27017/mumin";
+            const client = await mongo.connect(dsn);
+            const db = await client.db();
+            const col = await db.collection("crowd")
+            const res = await col.insertOne({ name: "Mumintrollet" })
+            console.log("Document inserted:", res.insertedId);
+            await client.close();
+        } catch (error) {
+            console.error("Error populating the database:", error);
+        }
     });
 
     it.only('should return "apa" on GET /test_route', (done) => {
@@ -28,7 +40,7 @@ describe('GET /test_route', () => {
             .send({ name: "Mumintrollet"})
             .end((err, res) => {
                 expect(res).to.have.status(200);
-                expect(res.body.namn).to.equal('Mumintrollet');
+                expect(res.body.name).to.equal('Mumintrollet');
                 done();
             });
     });
