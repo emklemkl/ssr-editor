@@ -1,6 +1,6 @@
 import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
-import app from "../../app.js"; // Our app
+import app from "../app.js"; // Our app
 chai.use(chaiHttp);
 
 describe('GET /test_route', () => {
@@ -19,6 +19,16 @@ describe('GET /test_route', () => {
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res.text).to.equal('apa');
+                done();
+            });
+    });
+    it.only('Should return Mumintrollet GET', (done) => {
+        chai.request(server)
+            .get('/document')
+            .send({ _id: "66eac035d99600e68a0e5c24"})
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.body.namn).to.equal('Mumintrollet');
                 done();
             });
     });
