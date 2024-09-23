@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 import express from 'express';
 import bodyParser from 'body-parser';
