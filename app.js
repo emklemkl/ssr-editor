@@ -8,7 +8,7 @@ import database from './data/database.js';
 
 const port = process.env.PORT;
 const app = express();
-const collectionName = "crowd";
+// const collectionName = "crowd";
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,11 +23,28 @@ if (process.env.NODE_ENV !== 'test') {
 let client; 
 let col;
 
-async function startServer() {
+// async function startServer() {
+//     try {
+//         client = await database.connectDb();
+//         col = await database.getCollection(client, collectionName);
+        
+//         app.listen(port, () => {
+//             console.log(`Server is running on port ${port}. \n\n http://localhost:${port}/ \n`);
+//         });
+//     } catch (error) {
+//         console.error("Failed to connect to the database:", error);
+//         process.exit(1);
+//     }
+// }
+async function startServer(collectionName) {
     try {
         client = await database.connectDb();
-        col = await database.getCollection(client, collectionName);
+        col = await database.getCollection(client, collectionName); // Dynamiskt baserat på collectionName
         
+        if (!col) {
+            throw new Error(`Collection ${collectionName} does not exist.`);
+        }
+
         app.listen(port, () => {
             console.log(`Server is running on port ${port}. \n\n http://localhost:${port}/ \n`);
         });
@@ -93,5 +110,7 @@ app.get("/test", async (req, res) => {
     }
 });
 
-startServer();
+const collectionName = process.argv[2] || 'collection1';  // Collection kan anges via kommandoraden eller default
+startServer(collectionName);
+// startServer();
 export default app;
