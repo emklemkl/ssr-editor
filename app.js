@@ -1,14 +1,14 @@
+import { MongoClient as mongo, ObjectId } from "mongodb";
 import 'dotenv/config'
 import express from 'express';
 import bodyParser from 'body-parser';
-import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
-import docs from "./docs.js";
 import database from './data/database.js';
 
 const port = process.env.PORT;
 const app = express();
+const collectionName = "crowd";
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,16 +20,26 @@ if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined')); // 'combined' outputs the Apache style LOGs
 }
 
-app.post("/create", async (req, res) => {
-        try {
-        const db = await database.getDb();
-        const result = await db.collection.insertOne(req.body);
-        await db.client.close();
-        return res.status(201).json({ success: true, insertedId: result.insertedId });
+let client; 
+let col;
+
+async function startServer() {
+    try {
+        client = await database.connectDb();
+        col = await database.getCollection(client, collectionName);
+        
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}. \n\n http://localhost:${port}/ \n`);
+        });
     } catch (error) {
-        console.error("Error inserting document:", error);
-        return res.status(500).json({ success: false, message: "An error occurred" });
+        console.error("Failed to connect to the database:", error);
+        process.exit(1);
     }
+}
+
+app.post("/create", async (req, res) => {
+    const result = await col.insertOne(req.body);
+    return res.status(201).send();
 });
 
 app.get('/new-doc', (req, res) => {
@@ -37,45 +47,19 @@ app.get('/new-doc', (req, res) => {
 });
 
 app.put("/update", async (req, res) => {
-    try {
-        const { _id, ...rest } = req.body;
-        const db = await database.getDb();
-        
-        // Uppdatera dokumentet baserat på dess _id
-        await db.collection.updateOne({ _id: ObjectId(_id) }, { $set: rest });
-        await db.client.close();
-
-        return res.status(204).send();  // No Content response
-    } catch (error) {
-        console.error("Error updating document:", error);
-        return res.status(500).json({ success: false, message: "An error occurred" });
-    }
+    const { _id, ...rest } = req.body
+    await col.updateOne({ _id: ObjectId.createFromHexString(_id) }, { $set: rest })
+    return res.status(204).send();
 });
 
 app.get('/document', async (req, res) => {
-    try {
-        const db = await database.getDb();
-        const result = await db.collection.findOne(req.query);
-        await db.client.close();
-
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error("Error fetching document:", error);
-        return res.status(500).json({ success: false, message: "An error occurred" });
-    }
+    const result = await col.findOne(req.query)
+    res.status(200).json(result)
 });
 
 app.get('/', async (req, res) => {
-    try {
-        const db = await database.getDb();
-        const result = await db.collection.find().toArray();
-        await db.client.close();
-
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error("Error fetching documents:", error);
-        return res.status(500).json({ success: false, message: "An error occurred" });
-    }
+    const result = await col.find().toArray()
+    res.status(200).json(result)
 });
 
 app.get("/test_route", async (req, res) => {
@@ -87,7 +71,7 @@ app.get("/test", async (req, res) => {
     let db;
 
     try {
-        db = await database.getDb();
+        db = await database.connectDb();
 
         const filter = { bor: 'Mumindalen' };
         const keyObject = await db.collection.findOne(filter);
@@ -109,7 +93,5 @@ app.get("/test", async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}. \n\n http://localhost:${port}/ \n`);
-});
+startServer();
 export default app;
