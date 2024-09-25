@@ -16,8 +16,6 @@ const database = {
 
         // MongoClient connects to MongoDB
         const client = new MongoClient(dsn, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
         });
 
         // Connect to the MongoDB server
@@ -26,25 +24,11 @@ const database = {
         return client;
     },
 
-    // getCollection: async function getCollection(client, collectionName) {
-    //     const db = await client.db();
-    //     const collection = await db.collection(collectionName)
-
-    //     return collection;
-    // }
-
     getCollection: async function getCollection(client, collectionName) {
         const db = await client.db();
+        const collection = await db.collection(collectionName)
 
-        // Object mapping collections
-        const collections = {
-            collection1: db.collection('crowd'),
-            collection2: db.collection('docs'),
-            collection3: db.collection('test'),
-        };
-
-        // Return the collection based on collectionName or null if not found
-        return collections[collectionName] || null;
+        return collection;
     }
 };
 
