@@ -60,6 +60,7 @@ app.get('/document', async (req, res) => {
     } else {
         res.status(404).send({ error: "Document not found" });
     }
+
 });
 
 app.get('/', async (req, res) => {
