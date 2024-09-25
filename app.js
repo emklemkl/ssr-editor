@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import database from './data/database.js';
 
-const port = process.env.PORT;
+const port = process.env.PORT||5000;
 const app = express();
 const collectionName = "crowd";
 
