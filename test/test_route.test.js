@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import app from "../app.js"; // Our app
-import { MongoClient as mongo, ObjectId } from "mongodb";
+import { MongoClient as mongo } from "mongodb";
 chai.use(chaiHttp);
 
 describe('Test routes and API endpoints', () => {
@@ -10,6 +10,7 @@ describe('Test routes and API endpoints', () => {
     const NAME = "Mumintrollet";
     const COLLECTION_NAME = "crowd";
     const dsn = "mongodb://localhost:27017/mumin";
+
     before(async () => {
         // Start the server for testing
         try {
@@ -17,9 +18,10 @@ describe('Test routes and API endpoints', () => {
             });
             const client = await mongo.connect(dsn);
             const db = await client.db();
-            const col = await db.collection(COLLECTION_NAME)
-            const res = await col.insertOne({ name: NAME })
-            insertedId = res.insertedId
+            const col = await db.collection(COLLECTION_NAME);
+            const res = await col.insertOne({ name: NAME });
+
+            insertedId = res.insertedId;
             console.log("Document inserted:", res.insertedId);
             await client.close();
         } catch (err) {
@@ -31,8 +33,10 @@ describe('Test routes and API endpoints', () => {
         try {
             const client = await mongo.connect(dsn);
             const db = await client.db();
-            const col = await db.collection(COLLECTION_NAME)
-            const res = await col.deleteOne({ _id: insertedId })
+            const col = await db.collection(COLLECTION_NAME);
+            const res = await col.deleteOne({ _id: insertedId });
+
+            console.log(`Deleted ${res.deletedCount} document(s)`);
         } catch (err) {
             console.error("Error cleaning up the test database:", err);
         }

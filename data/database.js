@@ -9,7 +9,7 @@ const database = {
     connectDb: async function () {
         // DSN dynamically based on NODE_ENV
         let dsn = `${dbUrl}/${dbName}`;
-        
+
         if (process.env.NODE_ENV === 'test') {
             dsn = `${dbUrl}/test`;  // Testdatabase
         }
@@ -26,7 +26,7 @@ const database = {
 
     getCollection: async function getCollection(client, collectionName) {
         const db = await client.db();
-        const collection = await db.collection(collectionName)
+        const collection = await db.collection(collectionName);
 
         return collection;
     }
