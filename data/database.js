@@ -1,10 +1,6 @@
 import { MongoClient } from "mongodb";
 import 'dotenv/config';
 
-// // Environmental variables
-// const dbName = process.env.DB_NAME;
-// const dbUrl = process.env.DB_URL;
-
 // Environmental variables
 const dbName = process.env.DB_NAME || "mumin";
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017";

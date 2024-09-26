@@ -36,9 +36,14 @@ async function startServer(collectionName) {
 }
 
 app.post("/create", async (req, res) => {
-    const collection = await database.getCollection(db, 'crowd');
-    const result = await collection.insertOne(req.body);
-    return res.status(201).send({ message: "Document created successfully", id: result.insertedId });
+    const { collectionName, ...document } = req.body;
+    try {
+        const collection = await database.getCollection(db, collectionName);
+        const result = await collection.insertOne(document);
+        return res.status(201).send({ message: "Document created successfully", id: result.insertedId });
+    } catch (error) {
+        return res.status(500).send({ error: "Failed to create document" });
+    }
 });
 
 app.get('/new-doc', (req, res) => {
@@ -46,14 +51,29 @@ app.get('/new-doc', (req, res) => {
 });
 
 app.put("/update", async (req, res) => {
-    const { _id, ...rest } = req.body;
+    const { collectionName, _id, ...rest } = req.body;
+    try {
+        const collection = await database.getCollection(db, collectionName);
+        await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }, { $set: rest });
+        return res.status(204).send();
+    } catch (error) {
+        return res.status(500).send({ error: "Failed to update document" });
+    }
+});
+
+app.get('/document/:id', async (req, res) => {
     const collection = await database.getCollection(db, 'crowd');
-    await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }, { $set: rest });
-    return res.status(204).send();
+    console.log(req.params);
+    const result = await collection.findOne({ _id: new ObjectId(req.params) });
+    if (result) {
+        res.status(200).json(result);
+    } else {
+        res.status(404).send({ error: "Document not found" });
+    }
 });
 
 app.get('/document', async (req, res) => {
-    const collection = await database.getCollection(db, 'crowd');
+    const collection = await database.getCollection(db, collectionName);
     const result = await collection.findOne(req.query);
     if (result) {
         res.status(200).json(result);
@@ -64,7 +84,7 @@ app.get('/document', async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
-    const collection = await database.getCollection(db, 'crowd');
+    const collection = await database.getCollection(db, collectionName);
     const result = await collection.find().toArray();
     res.status(200).json(result);
 });
@@ -75,7 +95,7 @@ app.get("/test_route", async (req, res) => {
 });
 
 app.get("/test", async (req, res) => {
-    const collection = await database.getCollection(db, 'crowd');
+    const collection = await database.getCollection(db, collectionName);
     const getAllData = await collection.find().toArray();
     res.json(getAllData);
 });
