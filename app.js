@@ -97,6 +97,7 @@ app.get("/test_route", async (req, res) => {
 app.get("/test", async (req, res) => {
     const collection = await database.getCollection(db, collectionName);
     const testLint = 'Testar om lintern fungerar i GH Action'
+    let test_linter;
     const getAllData = await collection.find().toArray();
     res.json(getAllData);
 });
