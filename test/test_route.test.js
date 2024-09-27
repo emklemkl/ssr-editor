@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import app from "../app.js"; // Our app
-import { MongoClient as mongo, ObjectId } from "mongodb";
+import { MongoClient as mongo } from "mongodb";
 chai.use(chaiHttp);
 
 describe('Test routes and API endpoints', () => {
@@ -10,7 +10,9 @@ describe('Test routes and API endpoints', () => {
     const NAME = "Mumintrollet";
     const COLLECTION_NAME = "crowd";
     const dsn = "mongodb://localhost:27017/mumin";
+
     let idToRemove;
+
     before(async () => {
         // Start the server for testing
         try {
@@ -18,9 +20,10 @@ describe('Test routes and API endpoints', () => {
             });
             const client = await mongo.connect(dsn);
             const db = await client.db();
-            const col = await db.collection(COLLECTION_NAME)
-            const res = await col.insertOne({ name: NAME })
-            insertedId = res.insertedId
+            const col = await db.collection(COLLECTION_NAME);
+            const res = await col.insertOne({ name: NAME });
+
+            insertedId = res.insertedId;
             console.log("Document inserted:", res.insertedId);
             await client.close();
         } catch (err) {
@@ -32,9 +35,12 @@ describe('Test routes and API endpoints', () => {
         try {
             const client = await mongo.connect(dsn);
             const db = await client.db();
-            const col = await db.collection(COLLECTION_NAME)
-            const res = await col.deleteOne({ _id: insertedId })
-            await col.deleteOne({ _id: idToRemove })
+
+            const col = await db.collection(COLLECTION_NAME);
+
+            await col.deleteOne({ _id: insertedId });
+
+            await col.deleteOne({ _id: idToRemove });
         } catch (err) {
             console.error("Error cleaning up the test database:", err);
         }
@@ -60,7 +66,8 @@ describe('Test routes and API endpoints', () => {
             });
     });
     it('Should return Mumintrollet GET', (done) => {
-        const BROKEN_ID = "00001111"
+        const BROKEN_ID = "00001111";
+
         chai.request(server)
             .get(`/document/${BROKEN_ID}`)
             .end((err, res) => {
@@ -70,13 +77,14 @@ describe('Test routes and API endpoints', () => {
             });
     });
     it('Should return 204 PUT', (done) => {
-        const UPDATED_NAME = "Apan"
+        const UPDATED_NAME = "Apan";
+
         chai.request(server)
             .put(`/document/update`)
             .send({ _id: insertedId, name: UPDATED_NAME })
             .end((err, res) => {
                 expect(res).to.have.status(204);
-                
+
 
                 chai.request(app)
                     .get(`/document/${insertedId}`)
@@ -93,15 +101,16 @@ describe('Test routes and API endpoints', () => {
             });
     });
     it('Should return 201 POST', (done) => {
-        const CREATED_NAME = "Johnny"
+        const CREATED_NAME = "Johnny";
+
         chai.request(server)
             .post(`/document/create`)
             .send({ name: CREATED_NAME })
             .end((err, res) => {
                 expect(res).to.have.status(201);
-                expect(res.body).to.have.property("message", "Document created successfully")
+                expect(res.body).to.have.property("message", "Document created successfully");
                 expect(res.body).to.have.property("_id");
-                idToRemove = res.body._id
+                idToRemove = res.body._id;
                 chai.request(app)
                     .get(`/document/${res.body._id}`)
                     .end((err, res) => {
