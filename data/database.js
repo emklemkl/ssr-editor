@@ -1,35 +1,29 @@
 import { MongoClient } from "mongodb";
 import 'dotenv/config';
 
-// Environmental variables
 const dbName = process.env.DB_NAME || "mumin";
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017";
 
-const database = {
-    connectDb: async function () {
-        // DSN dynamically based on NODE_ENV
-        let dsn = `${dbUrl}/${dbName}`;
 
-        if (process.env.NODE_ENV === 'test') {
-            dsn = `${dbUrl}/test`;  // Testdatabase
-        }
-
-        // MongoClient connects to MongoDB
-        const client = new MongoClient(dsn, {
-        });
-
-        // Connect to the MongoDB server
+/**
+ * @description Checks it db connection is established and returns connected db obj
+ * @returns database object Db. 
+ */
+let db;
+let client;
+export async function connectDb () {
+    if (!db) {
+        console.info(" \n-----> CREATING NEW DB CONNECTION <-----\n")
+        client = new MongoClient(dbUrl);
         await client.connect();
+        db = await client.db(dbName);
+    }
+        return db;
+    }
 
-        return client;
-    },
-
-    getCollection: async function getCollection(client, collectionName) {
-        const db = await client.db();
-        const collection = await db.collection(collectionName);
-
+export async function getCollection(db, collectionName) {
+        const collection = await db.collection(collectionName)
         return collection;
     }
-};
 
-export default database;
+// export default {connectDb, getCollection};
