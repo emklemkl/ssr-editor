@@ -8,7 +8,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down --remove-orphans",
     "start-dev": "nodemon app.mjs",
-    "test-quick": "npm run docker:up && sleep 1 && nyc --reporter=html --reporter=text --loader=ts-node/esm --reporter=clover mocha 'test/**/*.js' --exit --timeout 10000 && npm run docker:down",
+    "test-quick": "npm run docker:up && sleep 1 && cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000 && npm run docker:down",
     "test1": "nyc  mocha --experimental-loader --exit --timeout 10000",
     "lint": "eslint .",
     "test": "cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000",
