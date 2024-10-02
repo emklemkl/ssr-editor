@@ -1,7 +1,7 @@
 *.sqlite
 data/db/
 redovisningstext.*
-
+app.zip
 # Logs
 logs
 *.log
