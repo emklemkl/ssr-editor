@@ -30,7 +30,8 @@ if (process.env.NODE_ENV !== 'test') {
         app.use("/sandbox", sandbox);
 
         app.listen(port, () => {
-            console.log(`Server is running on port ${port}. \n\n http://localhost:${port}/ \n`);
+            console.log(`\nPort ${port} set \n`);
+            console.log(`Server is running in ${process.env.NODE_ENV.toUpperCase()} mode \n`);
         });
     } catch (error) {
         console.error("Failed to connect to the database:", error);
