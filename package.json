@@ -2,10 +2,17 @@
   "name": "ssr-editor",
   "version": "1.0.0",
   "description": "Starter project for DV1677 JSRamverk",
-  "main": "index.js",
+  "main": "app.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start-dev": "nodemon app.mjs"
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down --remove-orphans",
+    "start-dev": "nodemon app.mjs",
+    "test-quick": "npm run docker:up && sleep 1 && cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000 && npm run docker:down",
+    "test1": "nyc  mocha --experimental-loader --exit --timeout 10000",
+    "lint": "eslint .",
+    "test": "cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000",
+    "lint-fix": "eslint --fix ."
   },
   "keywords": [],
   "author": "",
@@ -13,11 +20,20 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "ejs": "^3.1.10",
     "express": "^5.0.0",
+    "mongodb": "^6.9.0",
     "morgan": "^1.10.0",
-    "nodemon": "^3.1.4",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "nodemon": "^3.1.4"
+  },
+  "devDependencies": {
+    "@istanbuljs/esm-loader-hook": "^0.2.0",
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^5.15.3",
+    "javascript-style-guide": "^1.0.1",
+    "mocha": "^10.2.0",
+    "node-html-parser": "^1.1.12",
+    "nyc": "^14.1.1"
   }
 }

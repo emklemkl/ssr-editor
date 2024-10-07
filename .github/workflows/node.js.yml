@@ -1,3 +1,4 @@
+
 name: Node.js CI
 
 on:
@@ -14,7 +15,8 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-        mongodb-version: ['4.2', '4.4', '5.0']
+
+        mongodb-version: ['4.2', '4.4', '6.0']
 
     steps:
     - uses: actions/checkout@v3
@@ -30,4 +32,8 @@ jobs:
         mongodb-version: ${{ matrix.mongodb-version }}
 
     - run: npm install
+
+    # - name: Populate db
+    #   run: node .github/scripts/populate_db.js
+    - run: npm run lint
     - run: npm test
