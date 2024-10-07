@@ -8,10 +8,10 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down --remove-orphans",
 
-    "start-dev": "NODE_ENV=development nodemon app.mjs",
-    "start": "NODE_ENV=production nodemon app.mjs",
+    "start-dev": "NODE_ENV=development nodemon app.js",
+    "start": "NODE_ENV=production nodemon app.js",
 
-    "test-quick": "NODE_ENV=test run docker:up && sleep 1 && cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000 && npm run docker:down",
+    "test-quick": "NODE_ENV=test npm  run docker:up && sleep 1 && cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000 && npm run docker:down",
     "test": "NODE_ENV=test cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000",
 
     "lint": "eslint .",

@@ -7,10 +7,8 @@ import {connectDb} from './data/database.js';
 import document from "./routes/document.js";
 import sandbox from "./routes/sandbox.js";
 
-
 const port = process.env.PORT||5000;
 const app = express();
-
 
 app.use(cors());
 app.use(bodyParser.json());

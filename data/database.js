@@ -4,7 +4,6 @@ import 'dotenv/config';
 const dbName = process.env.DB_NAME || "mumin";
 let dbUrl = "";
 
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     dbUrl = process.env.DB_DEV_LOCAL || "mongodb://localhost:27017";
 } else if (process.env.NODE_ENV === 'production') {
