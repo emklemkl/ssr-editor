@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== 'test') {
         app.use("/sandbox", sandbox);
 
         app.listen(port, () => {
-            console.log(`\nPort ${port} set \n`);
+            console.log(`\nPort ${port} set (http://localhost:5000/)\n`);
             console.log(`Server is running in ${process.env.NODE_ENV.toUpperCase()} mode \n`);
         });
     } catch (error) {
