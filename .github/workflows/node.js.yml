@@ -3,9 +3,14 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "refatctor" ]
+    branches:
+      - dev
+      - main
+
   pull_request:
-    branches: [ "refatctor" ]
+    branches:
+      - dev
+      - main
 
 jobs:
   build:
