@@ -2,8 +2,18 @@ import { MongoClient } from "mongodb";
 import 'dotenv/config';
 
 const dbName = process.env.DB_NAME || "mumin";
-const dbUrl = process.env.DB_URL || "mongodb://localhost:27017";
+let dbUrl = "";
 
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    dbUrl = process.env.DB_DEV_LOCAL || "mongodb://localhost:27017";
+} else if (process.env.NODE_ENV === 'production') {
+    const PROTOCOL ="mongodb+srv";
+    const USER = "lojn22";
+    const CLUSTER_DOMAIN = "text-editor.y0d6w.mongodb.net";
+    const PARAMS = "?retryWrites=true&w=majority&appName=text-editor";
+
+    dbUrl = `${PROTOCOL}://${USER}:${process.env.DB_PASS}@${CLUSTER_DOMAIN}/${PARAMS}`;
+}
 
 /**
  * @description Checks it db connection is established and returns connected db obj
@@ -27,5 +37,3 @@ export async function getCollection(db, collectionName) {
 
     return collection;
 }
-
-// export default {connectDb, getCollection};

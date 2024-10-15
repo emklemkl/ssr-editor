@@ -7,10 +7,8 @@ import {connectDb} from './data/database.js';
 import document from "./routes/document.js";
 import sandbox from "./routes/sandbox.js";
 
-
 const port = process.env.PORT||5000;
 const app = express();
-
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -30,7 +28,8 @@ if (process.env.NODE_ENV !== 'test') {
         app.use("/sandbox", sandbox);
 
         app.listen(port, () => {
-            console.log(`Server is running on port ${port}. \n\n http://localhost:${port}/ \n`);
+            console.log(`\nPort ${port} set (http://localhost:5000/)\n`);
+            console.log(`Server is running in ${process.env.NODE_ENV.toUpperCase()} mode \n`);
         });
     } catch (error) {
         console.error("Failed to connect to the database:", error);
