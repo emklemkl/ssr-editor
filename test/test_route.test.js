@@ -2,10 +2,11 @@ import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import app from "../app.js"; // Our app
 import { MongoClient as mongo } from "mongodb";
+
 chai.use(chaiHttp);
 
 describe('Test routes and API endpoints', () => {
-    let server;
+    let server = app;
     let insertedId;
     const NAME = "Mumintrollet";
     const COLLECTION_NAME = "crowd";
@@ -16,8 +17,8 @@ describe('Test routes and API endpoints', () => {
     before(async () => {
         // Start the server for testing
         try {
-            server = app.listen(process.env.PORT || 5000, () => {
-            });
+            // server = app.listen(process.env.PORT || 5000, () => {
+            // });
             const client = await mongo.connect(dsn);
             const db = await client.db();
             const col = await db.collection(COLLECTION_NAME);
@@ -33,6 +34,9 @@ describe('Test routes and API endpoints', () => {
 
     after(async () => {
         try {
+            if (server) {
+                await server.close();
+            }
             const client = await mongo.connect(dsn);
             const db = await client.db();
 
