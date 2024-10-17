@@ -10,6 +10,10 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { corsConfig } from './config/cors-config.js';
 import { ObjectId } from "mongodb";
+import session from 'express-session';
+import passport from 'passport';
+import auth from './routes/auth.js';
+
 
 const port = process.env.PORT||5000;
 const app = express();
@@ -20,6 +24,18 @@ app.use(cors(corsConfig));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable('x-powered-by');
+// app.use(session({ secret: process.env.SESSION }));
+app.use(session({
+    secret: process.env.SESSION,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production'}
+    // cookie: { secure: true }
+  }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(auth);
+
 
 
 // don't show the log when it is test
