@@ -7,16 +7,12 @@
   "scripts": {
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down --remove-orphans",
-
     "start-dev": "NODE_ENV=development nodemon app.js",
     "start": "NODE_ENV=production nodemon app.js",
-
     "test-quick": "NODE_ENV=test npm  run docker:up && sleep 1 && cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000 && npm run docker:down",
     "test": "NODE_ENV=test cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000",
-
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
-
     "zip-app": "rm app.zip; zip -r app.zip . -x 'node_modules/*'",
     "deploy-az": "az webapp deploy --resource-group DIDA-EMKL21-DV1677-H24-LP1 --name js-emlo --src-path app.zip",
     "restart-az": "az webapp restart --name js-emlo --resource-group DIDA-EMKL21-DV1677-H24-LP1"
@@ -30,7 +26,8 @@
     "express": "^5.0.0",
     "mongodb": "^6.9.0",
     "morgan": "^1.10.0",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "socket.io": "^4.8.0"
   },
   "devDependencies": {
     "@istanbuljs/esm-loader-hook": "^0.2.0",
@@ -42,5 +39,8 @@
     "mocha": "^10.2.0",
     "node-html-parser": "^1.1.12",
     "nyc": "^14.1.1"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8"
   }
 }
