@@ -13,7 +13,7 @@
     "test": "NODE_ENV=test cross-env NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text --reporter=clover mocha --exit --timeout 10000",
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
-    "zip-app": "rm app.zip; zip -r app.zip . -x 'node_modules/*'",
+    "zip-app": "rm app.zip; zip -r app.zip . -x 'node_modules/*' -x 'data/db/*' -x '.github/*' -x '.vscode/*' -x 'coverage/*' -x '.env' -x '.nyc_output/*' -x '.git/*' -x 'test/*' -x '*.log' -x '.eslintrc.json' -x '.eslintignore' -x '.mocharc.json' -x 'Dockerfile' -x 'docker-compose.yml' -x '*.DS_Store' -x 'redovisningstext.md'",
     "deploy-az": "az webapp deploy --resource-group DIDA-EMKL21-DV1677-H24-LP1 --name js-emlo --src-path app.zip",
     "restart-az": "az webapp restart --name js-emlo --resource-group DIDA-EMKL21-DV1677-H24-LP1"
   },
