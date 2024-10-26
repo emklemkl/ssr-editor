@@ -13,6 +13,8 @@ import { ObjectId } from "mongodb";
 import session from 'express-session';
 import passport from 'passport';
 import auth from './routes/auth.js';
+import cookieParser from 'cookie-parser';
+
 
 
 const port = process.env.PORT||5000;
@@ -29,12 +31,19 @@ app.use(session({
     secret: process.env.SESSION,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production'}
-    // cookie: { secure: true }
+    cookie: { secure: process.env.NODE_ENV === 'production',
+        // cookie: { secure: true }
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 
+    }
+    
   }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(auth);
+
+
+app.use(cookieParser());
 
 
 
