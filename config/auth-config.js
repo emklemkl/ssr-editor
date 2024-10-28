@@ -13,13 +13,13 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, cb) => {
     console.log("AccessToken:", accessToken);
-    console.log("Profile:", profile);
+    // console.log("Profile:", profile);
     const { id, displayName, emails, photos } = profile;
     const db = await connectDb();
     const usersCollection = await getCollection(db, "users");
 
     let existingUser = await usersCollection.findOne({ googleID: id });
-    console.log('Google profile:', profile);
+    // console.log('Google profile:', profile);
 
     if (!existingUser) {
       const newUser = {
