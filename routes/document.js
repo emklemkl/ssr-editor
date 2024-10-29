@@ -53,6 +53,24 @@ router.get('/all', userIsAuthenticated, async (req, res) => {
     res.status(200).json(result);
 });
 
+router.get('/:id/edit', userIsAuthenticated, async (req, res) => {
+    const { id } = req.params;
+    const userEmail = req.user.email;
+    
+    let db = await connectDb();
+    const collection = await getCollection(db, "crowd");
+    const document = await collection.findOne({ _id: new ObjectId(id) });
+    if (!document) {
+        return res.status(404).send({ error: "Document not found" });
+    }
+
+    if (document && (document.ownerId.equals(req.user._id) || document.editors.includes(userEmail))) {
+        res.status(200).send(document);
+    } else {
+        res.status(403).send({ error: "Du har inte behörighet att redigera det här dokumentet." });
+    }
+});
+
 router.get('/:id', userIsAuthenticated, async (req, res) => {
     try {
         let db = await connectDb();
@@ -81,32 +99,26 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
         console.log('Inviting editor:', email);
         let db = await connectDb();
         const collection = await getCollection(db, "crowd");
-        console.log("User ID (owner):", req.user._id);
-        // console.log("Document Owner ID:", document.ownerID);
-
+        console.log("Owner ID:", req.user._id);
 
         // console.log("User ID:", req.user._id);
         console.log("Document ID:", req.params.id);
 
-        // Hämta dokumentet
+ 
         const document = await collection.findOne({ _id: new ObjectId(req.params.id), ownerId: req.user._id });
         console.log('Fetched Document:', document);
-        // console.log("Document Owner ID:", document.ownerId);
-        // Kontrollera om dokumentet existerar
+ 
         if (!document) {
             console.log("User does not have permission to share this document.");
             return res.status(403).send({ error: "You don't have permission to share this document." });
         }
 
-        // Logga editors-listan
         console.log('Current Editors:', document.editors);
 
-        // Kontrollera om e-posten redan finns i editors-listan
         if (document.editors && document.editors.includes(email)) {
             return res.status(400).send({ error: "Email is already an editor." });
         }
 
-        // Uppdatera editors-listan
         const updateResult = await collection.updateOne(
             { _id: new ObjectId(req.params.id) },
             { $addToSet: { editors: email } }
@@ -118,7 +130,6 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
             return res.status(400).send({ error: "Could not update document." });
         }
 
-        // Skicka e-postinbjudan
         const mailOptions = {
             from: 'pulseproject23bth@gmail.com',
             to: email,
@@ -132,8 +143,7 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error inviting editor:", error);
         res.status(500).send({ error: "An error occurred while inviting the editor." });
-    }
+    }   
 });
-
 
 export default router;
