@@ -1,6 +1,7 @@
 import express from "express";
 import config from '../config/auth-config.js';
-import { isLoggedIn } from '../middleware/auth-middleware.js'
+import { userIsAuthenticated, isLoggedIn } from '../middleware/auth-middleware.js';
+
 const passport = config;
 const router = express.Router();
 
@@ -8,34 +9,34 @@ router.get('/', (req, res) => {
     res.send('<a href="/auth/google">Authenticate with Google</a>');
 });
 
-router.get('/auth/google',
-    passport.authenticate('google', { scope: ['email',  'profile'] })
-);
+router.get('/auth/google', (req, res,) => {
+    const redirect = req.query.redirect || '/';
+    passport.authenticate('google', { 
+        scope: ['email',  'profile'],
+        state: encodeURIComponent(redirect)
+     })(req, res);
+});
 
 router.get('/auth/google/callback',
     passport.authenticate('google', {
-        // successRedirect: '/protected',
-        // failureRedirect: 'auth/failure',
         failureRedirect: '/',
     }),
 
     (req, res) => {
-        req.login(req.user, (err) => {
-            console.log('Authenticated user:', req.user);
-            console.log('Session after login:', req.session);
-            if (err) return res.status(500).send('Error logging in user');
-            res.redirect('http://localhost:4200');
-        })
+    if (req.isAuthenticated()) {
+        console.log('Received redirect query:', req.query.redirect);
+        const redirectUrl = req.query.redirect || 'http://localhost:4200';
+        console.log('Received redirect query:', req.query.redirect);
+        console.log('!!!Redirecting to:', redirectUrl);
+        res.redirect(redirectUrl);
+    } else {
+        res.redirect('/login');
     }
-);
+});
 
 router.get('/auth/failure', (req, res) => {
     res.send('something went wrong');
 })
-
-router.get('/protected', isLoggedIn, (req, res) => {
-    res.send(`Hello ${req.user.displayName}`);
-});
 
 router.get('/current_user', (req,res) => {
     console.log("Current user endpoint hit");
@@ -55,7 +56,6 @@ router.get('/logout', (req, res, next) => {
         if (err) { return next(err);}
         req.session.destroy();
         res.send('');
-        // res.redirect('http://localhost:4200/login')
     });
 })
 

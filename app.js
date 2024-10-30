@@ -14,6 +14,7 @@ import session from 'express-session';
 import passport from 'passport';
 import auth from './routes/auth.js';
 import cookieParser from 'cookie-parser';
+import mail from './routes/mail.js';
 
 
 
@@ -45,6 +46,7 @@ app.use(auth);
 
 app.use(cookieParser());
 
+app.use('mail/', mail);
 
 
 // don't show the log when it is test
@@ -77,13 +79,48 @@ if (process.env.NODE_ENV !== 'test') {
                 io.to(room).emit("doc-update", res);
             });
 
+            // socket.on("doc-update", async (res) => {
+            //     const parsedRes = JSON.parse(res);
+            //     const { _id, ...rest } = parsedRes;
+
+            //     try {
+            //         await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }
+            //             , { $set: rest });
+            //         gotUpdate = true;
+            //     } catch (e) {
+            //         console.error("Error updating document:", e);
+            //     }
+            // });
             socket.on("doc-update", async (res) => {
                 const parsedRes = JSON.parse(res);
-                const { _id, ...rest } = parsedRes;
-
+                const { _id, editors, ...rest } = parsedRes;
+            
                 try {
-                    await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }
-                        , { $set: rest });
+                    // Hämta det befintliga dokumentet
+                    const existingDocument = await collection.findOne({ _id: ObjectId.createFromHexString(_id) });
+                    
+                    if (!existingDocument) {
+                        console.error("Document not found");
+                        return;
+                    }
+
+                    console.log("Parsed Response:", parsedRes);
+                    console.log("Existing Document:", existingDocument);
+            
+                    // Bevara ownerId från det befintliga dokumentet
+                    const updatedFields = {
+                        ...rest,
+                        ownerId: existingDocument.ownerId,  // Bevarar ownerId
+                        editors: editors && editors.length > 0 ? editors : existingDocument.editors
+                    };
+
+            
+                    // Uppdatera dokumentet med nya fält men behåll ownerId
+                    await collection.updateOne(
+                        { _id: ObjectId.createFromHexString(_id) },
+                        { $set: updatedFields }
+                    );
+            
                     gotUpdate = true;
                 } catch (e) {
                     console.error("Error updating document:", e);

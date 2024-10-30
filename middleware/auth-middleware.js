@@ -1,4 +1,6 @@
 function userIsAuthenticated(req, res, next) {
+    console.log("Is Authenticated:", req.isAuthenticated ? req.isAuthenticated() : "No auth method");
+    console.log("User Data:", req.user);
     if (req.isAuthenticated()) {
         return next();
     } else {
