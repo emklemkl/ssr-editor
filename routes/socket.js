@@ -31,5 +31,55 @@ export function socketCom(io, db) {
                 console.error("Error updating document:", e);
             }
         });
+        socket.on("comment-create", async (res) => {
+            const parsedRes = JSON.parse(res);
+            const { _id, comments } = parsedRes;
+
+            try {
+                const newCommentKey = Object.keys(comments)[0];
+
+                Object.keys(comments);
+                const newCommentValue = comments[newCommentKey];
+
+                if (!newCommentKey) {
+                    throw new Error("Invalid comment key");
+                }
+                await collection.updateOne(
+                    { _id: ObjectId.createFromHexString(_id) },
+                    { $set: { [`comments.${newCommentKey}`]: newCommentValue } }
+                );
+            } catch (e) {
+                console.error("Error updating document:", e);
+            }
+        });
+        socket.on("comment-change", async (res) => {
+            const parsedRes = JSON.parse(res);
+
+            const [commentKey, commentValue] = Object.entries(parsedRes.comments)[0];
+
+            console.log("🚀 ~ socket.on ~ commentKey, commentValue:", commentKey, commentValue);
+            try {
+                await collection.updateOne({ _id: ObjectId.createFromHexString(parsedRes._id) }
+                    , { $set: { [`comments.${commentKey}`]: commentValue } });
+                socket.broadcast.to(myRoom).emit("comment-change", parsedRes);
+            } catch (e) {
+                console.error("Error updating document:", e);
+            }
+        });
+        socket.on("comment-delete", async (res) => {
+            const parsedRes = JSON.parse(res);
+
+            try {
+                await collection.updateOne(
+                    { _id: new ObjectId(parsedRes._id) },
+                    { $unset: { [`comments.${parsedRes.comments}`]: "" } }
+                );
+                const res = await collection.findOne({ _id: new ObjectId(parsedRes._id) });
+
+                socket.to(myRoom).emit("doc_update", res);
+            } catch (e) {
+                console.error("Error updating document:", e);
+            }
+        });
     };
 }

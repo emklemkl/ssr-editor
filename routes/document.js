@@ -24,6 +24,7 @@ router.put("/update", async (req, res) => {
         let db = await connectDb();
         const collection = await getCollection(db, "crowd");
 
+        console.log("Update/", req.body);
         await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }, { $set: rest });
         return res.status(204).send();
     } catch (error) {
