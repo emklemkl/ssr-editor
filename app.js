@@ -14,7 +14,7 @@ import session from 'express-session';
 import passport from 'passport';
 import auth from './routes/auth.js';
 import cookieParser from 'cookie-parser';
-import mail from './routes/mail.js';
+// import mail from './routes/mail.js';
 
 
 
@@ -46,7 +46,7 @@ app.use(auth);
 
 app.use(cookieParser());
 
-app.use('mail/', mail);
+// app.use('mail/', mail);
 
 // don't show the log when it is test
 if (process.env.NODE_ENV !== 'test') {
@@ -62,78 +62,66 @@ if (process.env.NODE_ENV !== 'test') {
 
         app.use("/document", document);
         app.use("/sandbox", sandbox);
-        let myRoom;
-        let gotUpdate = false;
+        // let myRoom;
+        // let gotUpdate = false;
+        io.sockets.on('connect', socketCom(io, db));
+        // io.sockets.on('connect', async function (socket) {
+        //     console.log("Socket Id:", socket.id); // Nått lång och slumpat
+        //     const collection = await getCollection(db, "crowd");
 
-        io.sockets.on('connect', async function (socket) {
-            console.log("Socket Id:", socket.id); // Nått lång och slumpat
-            const collection = await getCollection(db, "crowd");
+        //     socket.on('create', async function (room) {
+        //         myRoom = room;
+        //         socket.join(room);
+        //         const res = await collection.findOne({ _id: new ObjectId(room) });
 
-            socket.on('create', async function (room) {
-                myRoom = room;
-                socket.join(room);
-                const res = await collection.findOne({ _id: new ObjectId(room) });
-
-                io.to(room).emit("doc-update", res);
-            });
+        //         io.to(room).emit("doc-update", res);
+        //     });
 
             // socket.on("doc-update", async (res) => {
             //     const parsedRes = JSON.parse(res);
-            //     const { _id, ...rest } = parsedRes;
-
+            //     const { _id, editors, ...rest } = parsedRes;
+            
             //     try {
-            //         await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }
-            //             , { $set: rest });
+            //         // Hämta det befintliga dokumentet
+            //         const existingDocument = await collection.findOne({ _id: ObjectId.createFromHexString(_id) });
+                    
+            //         if (!existingDocument) {
+            //             console.error("Document not found");
+            //             return;
+            //         }
+
+            //         console.log("Parsed Response:", parsedRes);
+            //         console.log("Existing Document:", existingDocument);
+            
+            //         // Bevara ownerId från det befintliga dokumentet
+            //         const updatedFields = {
+            //             ...rest,
+            //             ownerId: existingDocument.ownerId,  // Bevarar ownerId
+            //             editors: editors && editors.length > 0 ? editors : existingDocument.editors
+            //         };
+
+            
+            //         // Uppdatera dokumentet med nya fält men behåll ownerId
+            //         await collection.updateOne(
+            //             { _id: ObjectId.createFromHexString(_id) },
+            //             { $set: updatedFields }
+            //         );
+            
             //         gotUpdate = true;
             //     } catch (e) {
             //         console.error("Error updating document:", e);
             //     }
             // });
-            socket.on("doc-update", async (res) => {
-                const parsedRes = JSON.parse(res);
-                const { _id, editors, ...rest } = parsedRes;
-            
-                try {
-                    // Hämta det befintliga dokumentet
-                    const existingDocument = await collection.findOne({ _id: ObjectId.createFromHexString(_id) });
-                    
-                    if (!existingDocument) {
-                        console.error("Document not found");
-                        return;
-                    }
 
-                    console.log("Parsed Response:", parsedRes);
-                    console.log("Existing Document:", existingDocument);
-            
-                    // Bevara ownerId från det befintliga dokumentet
-                    const updatedFields = {
-                        ...rest,
-                        ownerId: existingDocument.ownerId,  // Bevarar ownerId
-                        editors: editors && editors.length > 0 ? editors : existingDocument.editors
-                    };
+            // setInterval(async () => {
+            //     if (gotUpdate) {
+            //         const res = await collection.findOne({ _id: new ObjectId(myRoom) });
 
-            
-                    // Uppdatera dokumentet med nya fält men behåll ownerId
-                    await collection.updateOne(
-                        { _id: ObjectId.createFromHexString(_id) },
-                        { $set: updatedFields }
-                    );
-            
-                    gotUpdate = true;
-                } catch (e) {
-                    console.error("Error updating document:", e);
-                }
-            });
-
-            setInterval(async () => {
-                if (gotUpdate) {
-                    const res = await collection.findOne({ _id: new ObjectId(myRoom) });
-
-                    io.to(myRoom).emit("doc-update", res);
-                } gotUpdate = false;
-            }, 2000);
-        });
-        io.sockets.on('connect', socketCom(io, db));
+            //         io.to(myRoom).emit("doc-update", res);
+            //     } gotUpdate = false;
+            // }, 2000);
+        // });
+       
 
         httpServer.listen(port, () => {
             console.log(`\nPort ${port} set (if local: http://localhost:5000/)\n`);

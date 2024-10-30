@@ -17,9 +17,24 @@ export function socketCom(io, db) {
             io.to(room).emit("doc-update", res);
         });
 
+        // socket.on("doc-update", async (res) => {
+        //     const parsedRes = JSON.parse(res);
+        //     const { _id, ...rest } = parsedRes;
+
+        //     try {
+        //         await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }
+        //             , { $set: rest });
+        //         if (Date.now() - latestEmit > 500) { // Avoid overloading the server
+        //             socket.broadcast.to(myRoom).emit("doc-update", parsedRes);
+        //         }
+        //     } catch (e) {
+        //         console.error("Error updating document:", e);
+        //     }
+        // });
+
         socket.on("doc-update", async (res) => {
             const parsedRes = JSON.parse(res);
-            const { _id, ...rest } = parsedRes;
+            const { _id, editors, ...rest } = parsedRes;
 
             try {
                 await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }
@@ -31,6 +46,44 @@ export function socketCom(io, db) {
                 console.error("Error updating document:", e);
             }
         });
+
+        socket.on("doc-update", async (res) => {
+            const parsedRes = JSON.parse(res);
+            const { _id, editors, ...rest } = parsedRes;
+
+            try {
+                // Hämta det befintliga dokumentet
+                const existingDocument = await collection.findOne({ _id: ObjectId.createFromHexString(_id) });
+
+                if (!existingDocument) {
+                    console.error("Document not found");
+                    return;
+                }
+
+                console.log("Parsed Response:", parsedRes);
+                console.log("Existing Document:", existingDocument);
+
+                // Bevara ownerId från det befintliga dokumentet
+                const updatedFields = {
+                    ...rest,
+                    ownerId: existingDocument.ownerId,  // Bevarar ownerId
+                    editors: editors && editors.length > 0 ? editors : existingDocument.editors
+                };
+
+
+                // Uppdatera dokumentet med nya fält men behåll ownerId
+                await collection.updateOne(
+                    { _id: ObjectId.createFromHexString(_id) },
+                    { $set: updatedFields }
+                );
+                if (Date.now() - latestEmit > 500) { // Avoid overloading the server
+                    socket.broadcast.to(myRoom).emit("doc-update", parsedRes);
+                }
+            } catch (e) {
+                console.error("Error updating document:", e);
+            }
+        });
+
         socket.on("comment-create", async (res) => {
             const parsedRes = JSON.parse(res);
             const { _id, comments } = parsedRes;
