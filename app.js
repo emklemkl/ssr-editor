@@ -21,7 +21,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable('x-powered-by');
 
-
 // don't show the log when it is test
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined')); // 'combined' outputs the Apache style LOGs
@@ -29,7 +28,6 @@ if (process.env.NODE_ENV !== 'test') {
 
 // USE io.to for sending to all other members of the room INCLUDING yourself
 // USE socket.broadcast.to for sending to all other members of the room EXCEPT yourself
-
 
 (async () => {
     try {
@@ -50,4 +48,3 @@ if (process.env.NODE_ENV !== 'test') {
 })();
 
 export default httpServer;
-
