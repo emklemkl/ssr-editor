@@ -1,4 +1,6 @@
 export const corsConfig = {
-    origin: ["http://localhost:4200", "http://localhost:5000", "https://www.student.bth.se"],
-    methods: ["GET", "POST", "PUT", "DELETE"]
+    origin: ["http://localhost:4200", "http://localhost:5000", "https://www.student.bth.se", "http://127.0.0.1:5000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+
 };

@@ -78,3 +78,6 @@ Vi har valt att använda oss utav ramverket Angular. Efter att ha gått igenom v
 ```
 - Success: `200 OK`  
 - Failure: `404 Not Found`
+
+## OAuth
+npm i --save express-session passport passport-google-oauth20

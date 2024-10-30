@@ -10,6 +10,13 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { corsConfig } from './config/cors-config.js';
 import { socketCom } from './routes/socket.js';
+import session from 'express-session';
+import passport from 'passport';
+import auth from './routes/auth.js';
+import cookieParser from 'cookie-parser';
+import mail from './routes/mail.js';
+
+
 
 const port = process.env.PORT||5000;
 const app = express();
@@ -20,6 +27,26 @@ app.use(cors(corsConfig));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable('x-powered-by');
+// app.use(session({ secret: process.env.SESSION }));
+app.use(session({
+    secret: process.env.SESSION,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production',
+        // cookie: { secure: true }
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 
+    }
+    
+  }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(auth);
+
+
+app.use(cookieParser());
+
+app.use('mail/', mail);
 
 // don't show the log when it is test
 if (process.env.NODE_ENV !== 'test') {
@@ -35,6 +62,77 @@ if (process.env.NODE_ENV !== 'test') {
 
         app.use("/document", document);
         app.use("/sandbox", sandbox);
+        let myRoom;
+        let gotUpdate = false;
+
+        io.sockets.on('connect', async function (socket) {
+            console.log("Socket Id:", socket.id); // Nått lång och slumpat
+            const collection = await getCollection(db, "crowd");
+
+            socket.on('create', async function (room) {
+                myRoom = room;
+                socket.join(room);
+                const res = await collection.findOne({ _id: new ObjectId(room) });
+
+                io.to(room).emit("doc-update", res);
+            });
+
+            // socket.on("doc-update", async (res) => {
+            //     const parsedRes = JSON.parse(res);
+            //     const { _id, ...rest } = parsedRes;
+
+            //     try {
+            //         await collection.updateOne({ _id: ObjectId.createFromHexString(_id) }
+            //             , { $set: rest });
+            //         gotUpdate = true;
+            //     } catch (e) {
+            //         console.error("Error updating document:", e);
+            //     }
+            // });
+            socket.on("doc-update", async (res) => {
+                const parsedRes = JSON.parse(res);
+                const { _id, editors, ...rest } = parsedRes;
+            
+                try {
+                    // Hämta det befintliga dokumentet
+                    const existingDocument = await collection.findOne({ _id: ObjectId.createFromHexString(_id) });
+                    
+                    if (!existingDocument) {
+                        console.error("Document not found");
+                        return;
+                    }
+
+                    console.log("Parsed Response:", parsedRes);
+                    console.log("Existing Document:", existingDocument);
+            
+                    // Bevara ownerId från det befintliga dokumentet
+                    const updatedFields = {
+                        ...rest,
+                        ownerId: existingDocument.ownerId,  // Bevarar ownerId
+                        editors: editors && editors.length > 0 ? editors : existingDocument.editors
+                    };
+
+            
+                    // Uppdatera dokumentet med nya fält men behåll ownerId
+                    await collection.updateOne(
+                        { _id: ObjectId.createFromHexString(_id) },
+                        { $set: updatedFields }
+                    );
+            
+                    gotUpdate = true;
+                } catch (e) {
+                    console.error("Error updating document:", e);
+                }
+            });
+
+            setInterval(async () => {
+                if (gotUpdate) {
+                    const res = await collection.findOne({ _id: new ObjectId(myRoom) });
+
+                    io.to(myRoom).emit("doc-update", res);
+                } gotUpdate = false;
+            }, 2000);
+        });
         io.sockets.on('connect', socketCom(io, db));
 
         httpServer.listen(port, () => {
