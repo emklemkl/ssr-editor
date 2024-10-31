@@ -160,14 +160,17 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
         }
         
         // const inviteLink = `http://localhost:5000/auth/google?redirect=${encodeURIComponent(`http://localhost:4200/document/${document._id}/edit`)}`;
-        const inviteLink = `http://localhost:4200/document/${document._id}/edit`;
+        // const inviteLink = `http://localhost:4200/document/${document._id}/edit`;
+        const inviteLink = `https://www.student.bth.se/~emkl21/editor/browser/document/${document._id}/edit`;
+        const inviteLink2 = `https://www.student.bth.se/~lojn22/editor/browser/document/${document._id}/edit`;
 
         const mailOptions = {
             from: 'pulseproject23bth@gmail.com',
             to: email,
             subject: 'Invitation to Edit Document',
             text: `You have been invited to edit the document titled "${document.title}".
-            You can access it here: ${inviteLink}`
+            You can access it here (emkl21): ${inviteLink}
+            You can access it here (lojn22): ${inviteLink2}`
         };
         await transporter.sendMail(mailOptions);
 

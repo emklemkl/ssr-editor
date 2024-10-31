@@ -25,7 +25,7 @@ router.get('/auth/google/callback',
     (req, res) => {
     if (req.isAuthenticated()) {
         console.log('Received redirect query:', req.query.redirect);
-        const redirectUrl = req.query.redirect || 'http://localhost:4200';
+        const redirectUrl = req.query.redirect || 'https://www.student.bth.se/~emkl21/editor/browser/';
         console.log('Received redirect query:', req.query.redirect);
         console.log('!!!Redirecting to:', redirectUrl);
         res.redirect(redirectUrl);

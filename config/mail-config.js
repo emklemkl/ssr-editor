@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: 'pulseproject23bth@gmail.com',
         
-        // pass: process.env.MAIL_PASS,
+        pass: process.env.MAIL_PASS,
     },
 });
 
