@@ -26,7 +26,11 @@ router.post('/login', async (req, res) => {
     if (user && await verifyPassword(password, user.password)) {
         // Spara användarens ID i sessionen
         req.session.userId = user._id;
+        req.session.usserEmail = user.email;
         console.log("Sparat användar-ID i session:", req.session.userId);
+        console.log("Sparat användar-Email i session:", req.session.usserEmail);
+        // console.log("Logged in user email:", req.user.email);
+
     
         res.json({ message: 'Inloggning lyckades', userId: user._id });
       } else {

@@ -23,16 +23,21 @@ passport.use(new LocalStrategy(
 
 // Serialisera och deserialisera användare för sessioner
 passport.serializeUser((user, done) => {
-    done(null, user.id);
+    done(null, {_id: user.id, email: user.email});
 });
 
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await User.findById(id);
-        done(null, user);
-    } catch (error) {
-        done(error);
-    }
+passport.deserializeUser((user, done) => {
+    done(null, user);
 });
+
+
+// passport.deserializeUser(async (id, done) => {
+//     try {
+//         const user = await User.findById(id);
+//         done(null, user);
+//     } catch (error) {
+//         done(error);
+//     }
+// });
 
 export default passport;

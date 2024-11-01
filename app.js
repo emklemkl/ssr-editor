@@ -21,7 +21,9 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: corsConfig });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cors(corsConfig));
 app.use(session({ 
     secret: process.env.SESSION,
     resave: false, 
@@ -37,7 +39,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use('/auth', auth);
 
-app.use(cors(corsConfig));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable('x-powered-by');

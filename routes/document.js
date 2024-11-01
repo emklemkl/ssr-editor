@@ -77,7 +77,8 @@ router.put("/update", userIsAuthenticated, async (req, res) => {
 });
 
 router.get("/all", userIsAuthenticated, async (req, res) => {
-    console.log("Authenticated user:", req.user);
+    console.log("Authenticated user /all:", req.user);
+    console.log("Authenticated user /all - mail:", req.user.email);
     try {
         const db = await connectDb();
         if (!db) {
@@ -99,6 +100,8 @@ router.get("/all", userIsAuthenticated, async (req, res) => {
                 { editors: req.user.email }
             ]
         }).toArray();
+        // Logga de hämtade dokumenten
+        console.log("Fetched documents:", documents);
 
         return res.status(200).json(documents);
     } catch (error) {
@@ -107,37 +110,37 @@ router.get("/all", userIsAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/:id/edit', userIsAuthenticated, async (req, res) => {
-    const { id } = req.params;
-    const userEmail = req.user.email;
-    console.log("User email:", userEmail);
+// router.get('/:id/edit', userIsAuthenticated, async (req, res) => {
+//     const { id } = req.params;
+//     const userEmail = req.user.email;
+//     console.log("User email:", userEmail);
     
-    try {
-        let db = await connectDb();
-        const collection = await getCollection(db, "crowd");
+//     try {
+//         let db = await connectDb();
+//         const collection = await getCollection(db, "crowd");
 
-        const document = await collection.findOne({ _id: new ObjectId(id) });
-        if (!document) {
-            return res.status(404).send({ error: "Document not found" });
-        }
+//         const document = await collection.findOne({ _id: new ObjectId(id) });
+//         if (!document) {
+//             return res.status(404).send({ error: "Document not found" });
+//         }
         
-        console.log("Document editors:", document.editors);
-        console.log("Document owner:", document.ownerId);
+//         console.log("Document editors:", document.editors);
+//         console.log("Document owner:", document.ownerId);
 
-        // Kontrollera och konvertera ownerId om det inte är av typen ObjectId
-        const ownerId = typeof document.ownerId === 'string' ? new ObjectId(document.ownerId) : document.ownerId;
+//         // Kontrollera och konvertera ownerId om det inte är av typen ObjectId
+//         const ownerId = typeof document.ownerId === 'string' ? new ObjectId(document.ownerId) : document.ownerId;
         
-        const hasAccess = ownerId.equals(req.user._id) || document.editors.includes(userEmail);
-        if (hasAccess) {
-            return res.status(200).send(document);
-        } else {
-            return res.status(403).send({ error: "Du har inte behörighet att redigera det här dokumentet." });
-        }
-    } catch (error) {
-        console.error("Error fetching document:", error);
-        res.status(500).send({ error: "Internal server error" });
-    }
-});
+//         const hasAccess = ownerId.equals(req.user._id) || document.editors.includes(userEmail);
+//         if (hasAccess) {
+//             return res.status(200).send(document);
+//         } else {
+//             return res.status(403).send({ error: "Du har inte behörighet att redigera det här dokumentet." });
+//         }
+//     } catch (error) {
+//         console.error("Error fetching document:", error);
+//         res.status(500).send({ error: "Internal server error" });
+//     }
+// });
 
 
 router.get('/:id', userIsAuthenticated, async (req, res) => {
@@ -192,7 +195,8 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
             );
         }
         
-        const inviteLink = `${process.env.BASE_URL}/document/${document._id}/edit`;
+        const inviteLink = `http://localhost:4200/register?redirect=${encodeURIComponent(`http://localhost:5000/document/${document._id}`)}`;
+        // const inviteLink = `${process.env.BASE_URL}/register?redirect=${encodeURIComponent(`${process.env.BASE_URL}/document/${document._id}`)}`;
 
         const mailOptions = {
             from: 'pulseproject23bth@gmail.com',
