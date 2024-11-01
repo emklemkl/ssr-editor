@@ -1,11 +1,11 @@
 import express from "express";
 import {ObjectId} from "mongodb";
 import { connectDb, getCollection } from './../data/database.js';
-import { userIsAuthenticated } from "../middleware/auth-middleware.js";
+// import  } from "../middleware/auth-middleware.js";
 const router = express.Router();
 import transporter from '../config/mail-config.js'
 
-router.post("/create", userIsAuthenticated, async (req, res) => {
+router.post("/create", async (req, res) => {
     try {
         console.log("User ID (create):", req.user._id);
         const document = { ...req.body,
@@ -27,7 +27,7 @@ router.post("/create", userIsAuthenticated, async (req, res) => {
 });
 
 
-router.put("/update", userIsAuthenticated, async (req, res) => {
+router.put("/update", async (req, res) => {
     try {
         const { _id, ...rest } = req.body;
         
@@ -68,7 +68,7 @@ router.put("/update", userIsAuthenticated, async (req, res) => {
     }
 });
 
-router.get("/all", userIsAuthenticated, async (req, res) => {
+router.get("/all", async (req, res) => {
     try {
         const db = await connectDb();
         const collection = await getCollection(db, "crowd");
@@ -87,7 +87,7 @@ router.get("/all", userIsAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/:id/edit', userIsAuthenticated, async (req, res) => {
+router.get('/:id/edit', async (req, res) => {
     const { id } = req.params;
     const userEmail = req.user.email;
     console.log("User email:", userEmail);
@@ -115,7 +115,7 @@ router.get('/:id/edit', userIsAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/:id', userIsAuthenticated, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         let db = await connectDb();
         const collection = await getCollection(db, "crowd");
@@ -137,7 +137,7 @@ router.get('/:id', userIsAuthenticated, async (req, res) => {
     }
 });
 
-router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
+router.post('/:id/invite', async (req, res) => {
     const { email } = req.body;
     const { id } = req.params;
     
@@ -160,9 +160,7 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
         }
         
         // const inviteLink = `http://localhost:5000/auth/google?redirect=${encodeURIComponent(`http://localhost:4200/document/${document._id}/edit`)}`;
-        // const inviteLink = `http://localhost:4200/document/${document._id}/edit`;
-        const inviteLink = `https://www.student.bth.se/~emkl21/editor/browser/document/${document._id}/edit`;
-        const inviteLink2 = `https://www.student.bth.se/~lojn22/editor/browser/document/${document._id}/edit`;
+        const inviteLink = `http://localhost:4200/document/${document._id}/edit`;
 
         const mailOptions = {
             from: 'pulseproject23bth@gmail.com',

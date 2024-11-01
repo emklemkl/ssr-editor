@@ -1,62 +1,62 @@
-import express from "express";
-import config from '../config/auth-config.js';
-import { userIsAuthenticated, isLoggedIn } from '../middleware/auth-middleware.js';
+import { Router } from 'express';
+import { hashPassword, verifyPassword } from '../services/auth-service.js';
+import { getUserById, getUserByEmail, saveUser } from '../models/user.js';
 
-const passport = config;
-const router = express.Router();
+const router = Router();
 
-router.get('/', (req, res) => {
-    res.send('<a href="/auth/google">Authenticate with Google</a>');
-});
+// Registrera användare
+router.post('/register', async (req, res) => {
+    const { email, password } = req.body;
 
-router.get('/auth/google', (req, res,) => {
-    const redirect = req.query.redirect || '/';
-    passport.authenticate('google', { 
-        scope: ['email',  'profile'],
-        state: encodeURIComponent(redirect)
-     })(req, res);
-});
-
-router.get('/auth/google/callback',
-    passport.authenticate('google', {
-        failureRedirect: '/',
-    }),
-
-    (req, res) => {
-    if (req.isAuthenticated()) {
-        console.log('Received redirect query:', req.query.redirect);
-        const redirectUrl = req.query.redirect || 'https://www.student.bth.se/~emkl21/editor/browser/';
-        console.log('Received redirect query:', req.query.redirect);
-        console.log('!!!Redirecting to:', redirectUrl);
-        res.redirect(redirectUrl);
-    } else {
-        res.redirect('/login');
+    try {
+        const hashedPassword = await hashPassword(password);
+        await saveUser({ email, password: hashedPassword }); // Spara användaren i databasen
+        res.status(201).json({ message: 'Användare registrerad!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Något gick fel vid registreringen' });
     }
-});
+  });
 
-router.get('/auth/failure', (req, res) => {
-    res.send('something went wrong');
-})
-
-router.get('/current_user', (req,res) => {
-    console.log("Current user endpoint hit");
-    console.log("User is authenticated:", req.isAuthenticated());
-    console.log("Session:", req.session);
-    if (req.isAuthenticated()) {
-        res.send(req.user);
-    } else {
-        console.log("User not authenticated");
-        res.status(401).send({ error: "Not authenticated"})
-    }
-});
-
-router.get('/logout', (req, res, next) => {
-    console.log('user to logout:', req.user);
-    req.logout((err) => {
-        if (err) { return next(err);}
-        req.session.destroy();
-        res.send('');
+// Logga in användare
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await getUserByEmail(email);
+  
+    if (user && await verifyPassword(password, user.password)) {
+        // Spara användarens ID i sessionen
+        req.session.userId = user._id;
+        console.log("Sparat användar-ID i session:", req.session.userId);
+    
+        res.json({ message: 'Inloggning lyckades', userId: user._id });
+      } else {
+        res.status(401).json({ message: 'Ogiltigt användarnamn eller lösenord' });
+      }
     });
-})
+
+router.get('/me', async (req, res) => {
+    console.log("Sessionens användar-ID:", req.session.userId);
+    if (!req.session.userId) {
+        return res.status(401).json({ message: "Du är inte inloggad" });
+    }
+
+    const user = await getUserById(req.session.userId);
+    if (!user) {
+        return res.status(404).json({ message: "Användaren hittades inte" });
+    }
+
+    res.json({ email: user.email });
+});
+
+
+// Rutt för att logga ut
+router.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+      if (err) {
+        return res.status(500).json({ message: 'Kunde inte logga ut' });
+      }
+      res.json({ message: 'Utloggning lyckades' });
+    });
+  });
 
 export default router;

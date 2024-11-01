@@ -14,39 +14,33 @@ import session from 'express-session';
 import passport from 'passport';
 import auth from './routes/auth.js';
 import cookieParser from 'cookie-parser';
-// import mail from './routes/mail.js';
-
-
 
 const port = process.env.PORT||5000;
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: corsConfig });
 
+app.use(express.json());
+app.use(cookieParser());
+app.use(session({ 
+    secret: process.env.SESSION,
+    resave: false, 
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24, // 1 dag i millisekunder
+        httpOnly: true, // Gör cookien tillgänglig endast på servern
+        secure: process.env.NODE_ENV === 'production', // Använd endast i säkra anslutningar (HTTPS) i produktion
+        // secure: true 
+    }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use('/auth', auth);
+
 app.use(cors(corsConfig));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable('x-powered-by');
-// app.use(session({ secret: process.env.SESSION }));
-app.use(session({
-    secret: process.env.SESSION,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production',
-        // cookie: { secure: true }
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 
-    }
-    
-  }));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(auth);
-
-
-app.use(cookieParser());
-
-// app.use('mail/', mail);
 
 // don't show the log when it is test
 if (process.env.NODE_ENV !== 'test') {

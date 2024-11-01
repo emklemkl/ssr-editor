@@ -1,51 +1,38 @@
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import passport from "passport";
-import 'dotenv/config';
-import { connectDb, getCollection } from "../data/database.js";
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import User from '../models/User.js';
+import bcrypt from 'bcrypt';
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-
-passport.use(new GoogleStrategy({
-    clientID: GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://www.student.bth.se/~emkl21/editor/browser/auth/google/callback"
-  },
-  async (accessToken, refreshToken, profile, cb) => {
-    console.log("AccessToken:", accessToken);
-    // console.log("Profile:", profile);
-    const { id, displayName, emails, photos } = profile;
-    const db = await connectDb();
-    const usersCollection = await getCollection(db, "users");
-
-    let existingUser = await usersCollection.findOne({ googleID: id });
-    // console.log('Google profile:', profile);
-
-    if (!existingUser) {
-      const newUser = {
-        googleID: id,
-        name: displayName,
-        email: emails[0].value,
-        avatar: photos[0].value
-      };
-
-      await usersCollection.insertOne(newUser);
-      existingUser = newUser;
+passport.use(new LocalStrategy(
+    async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username });
+            if (!user) {
+                return done(null, false, { message: 'Användare hittades inte' });
+            }
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                return done(null, false, { message: 'Fel lösenord' });
+            }
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
     }
-    
-    return cb(null, existingUser);
-  }
 ));
 
-passport.serializeUser(function(user, cb) {
-    cb(null, user.googleID);
+// Serialisera och deserialisera användare för sessioner
+passport.serializeUser((user, done) => {
+    done(null, user.id);
 });
 
-passport.deserializeUser(async function(id, cb) {
-  const db = await connectDb();
-  const usersCollection = await getCollection(db, "users");
-  const user = await usersCollection.findOne({ googleID: id });
-  cb(null, user);
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (error) {
+        done(error);
+    }
 });
 
 export default passport;
