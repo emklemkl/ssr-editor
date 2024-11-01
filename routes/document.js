@@ -4,6 +4,7 @@ import { connectDb, getCollection } from './../data/database.js';
 import { userIsAuthenticated } from "../middleware/auth-middleware.js";
 const router = express.Router();
 import transporter from '../config/mail-config.js'
+import 'dotenv/config';
 
 router.post("/create", userIsAuthenticated, async (req, res) => {
     console.log("Authenticated user in /create route:", req.user); // Logga för att kontrollera användarinformation
@@ -191,7 +192,7 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
             );
         }
         
-        const inviteLink = `http://localhost:4200/document/${document._id}/edit`;
+        const inviteLink = `${process.env.BASE_URL}/document/${document._id}/edit`;
 
         const mailOptions = {
             from: 'pulseproject23bth@gmail.com',
