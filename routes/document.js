@@ -5,6 +5,7 @@ import { userIsAuthenticated } from "../middleware/auth-middleware.js";
 const router = express.Router();
 import transporter from '../config/mail-config.js'
 import 'dotenv/config';
+import { getDocumentCollection } from "../models/document-models.js";
 
 router.post("/create", userIsAuthenticated, async (req, res) => {
     console.log("Authenticated user in /create route:", req.user); // Logga för att kontrollera användarinformation
@@ -17,12 +18,12 @@ router.post("/create", userIsAuthenticated, async (req, res) => {
         }
         
         const document = { ...req.body,
-            userId: req.user._id,
-            ownerId: req.user._id,
+            userId: req.user.id,
+            ownerId: req.user.id,
             editors: []
         };
-        let db = await connectDb();
-        const collection = await getCollection(db, "crowd");
+
+        const collection = await getDocumentCollection();;
         const result = await collection.insertOne(document);
         console.log('Inserted document ID:', result.insertedId);
 
@@ -43,8 +44,7 @@ router.put("/update", userIsAuthenticated, async (req, res) => {
             return res.status(400).send({ error: "Document ID is required" });
         }
 
-        let db = await connectDb();
-        const collection = await getCollection(db, "crowd");
+        const collection = await getDocumentCollection();
 
 
         console.log("Update/", req.body);
@@ -80,23 +80,16 @@ router.get("/all", userIsAuthenticated, async (req, res) => {
     console.log("Authenticated user /all:", req.user);
     console.log("Authenticated user /all - mail:", req.user.email);
     try {
-        const db = await connectDb();
-        if (!db) {
-            return res.status(500).send({ error: "Database connection failed" }); //ta bort sen
-        }
-        const collection = await getCollection(db, "crowd");
-        if (!collection) {
-            return res.status(500).send({ error: "Collection not found" }); //ta bort sen
-        }
+        const collection = await getDocumentCollection();
 
         console.log("Querying documents for user:", {
-            ownerId: req.user._id,
+            ownerId: req.user.id,
             editors: req.user.email,
         });
 
         const documents = await collection.find({
             $or: [
-                { ownerId: req.user._id },       
+                { ownerId: req.user.id },       
                 { editors: req.user.email }
             ]
         }).toArray();
@@ -110,47 +103,13 @@ router.get("/all", userIsAuthenticated, async (req, res) => {
     }
 });
 
-// router.get('/:id/edit', userIsAuthenticated, async (req, res) => {
-//     const { id } = req.params;
-//     const userEmail = req.user.email;
-//     console.log("User email:", userEmail);
-    
-//     try {
-//         let db = await connectDb();
-//         const collection = await getCollection(db, "crowd");
-
-//         const document = await collection.findOne({ _id: new ObjectId(id) });
-//         if (!document) {
-//             return res.status(404).send({ error: "Document not found" });
-//         }
-        
-//         console.log("Document editors:", document.editors);
-//         console.log("Document owner:", document.ownerId);
-
-//         // Kontrollera och konvertera ownerId om det inte är av typen ObjectId
-//         const ownerId = typeof document.ownerId === 'string' ? new ObjectId(document.ownerId) : document.ownerId;
-        
-//         const hasAccess = ownerId.equals(req.user._id) || document.editors.includes(userEmail);
-//         if (hasAccess) {
-//             return res.status(200).send(document);
-//         } else {
-//             return res.status(403).send({ error: "Du har inte behörighet att redigera det här dokumentet." });
-//         }
-//     } catch (error) {
-//         console.error("Error fetching document:", error);
-//         res.status(500).send({ error: "Internal server error" });
-//     }
-// });
-
-
 router.get('/:id', userIsAuthenticated, async (req, res) => {
     try {
-        let db = await connectDb();
-        const collection = await getCollection(db, "crowd");
+        const collection = await getDocumentCollection();
 
         const result = await collection.findOne({ _id: new ObjectId(req.params.id), 
             $or: [
-                { userId: req.user._id },
+                { userId: req.user.id },
                 { editors: req.user.email }
             ]
         });
@@ -172,8 +131,7 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
     console.log('Doc id /invite: ', id);
 
     try {
-        let db = await connectDb();
-        const collection = await getCollection(db, "crowd");
+        const collection = await getDocumentCollection();
 
         const document = await collection.findOne({ _id: new ObjectId(id) });
         
@@ -183,8 +141,10 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
 
         // Kontrollera och konvertera ownerId om det inte är av typen ObjectId
         const ownerId = typeof document.ownerId === 'string' ? new ObjectId(document.ownerId) : document.ownerId;
+        console.log('owner id /ivite: ', ownerId);
         
-        if (!ownerId.equals(req.user._id)) {
+        
+        if (!ownerId.equals(req.user.id)) {
             return res.status(403).send({ error: "User does not have permission to share this document." });
         }
 

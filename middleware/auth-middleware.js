@@ -1,42 +1,25 @@
-// const userIsAuthenticated = (req, res, next) => {
-//     console.log("Sessionens användar-ID:", req.session.userId); // Logga sessionens ID
-//     if (req.session.userId) {
-//         req.user = { _id: req.session.userId }; // Sätt req.user med användarens ID
-//         console.log("Authenticated user /middleware:", req.user); // Logga användaren för felsökning
-//         return next();
-//     }
-//     res.status(401).json({ message: 'Ej autentiserad' });
-// };
-import { ObjectId } from 'mongodb';
-import { connectDb, getCollection } from '../data/database.js'; 
+import jwt from 'jsonwebtoken';
+import 'dotenv/config';
+
+const secretKey = process.env.JWT_SECRET || 'yes';
 
 const userIsAuthenticated = async (req, res, next) => {
-    console.log("Sessionens användar-ID:", req.session.userId);
+    // const authHeader = req.headers['authorization'];
+    const token = req.headers.authorization?.split(' ')[1];
+    console.log("Token som tas emot:", token); 
+    if (!token) {
+        return res.status(401).json({ message: 'Ingen token tillhandahölls' });
+      }
 
-    if (req.session.userId) {
-        try {
-            // Hämta användarens fullständiga objekt från databasen
-            const db = await connectDb();
-            const collection = await getCollection(db, "users");
-            const user = await collection.findOne({ _id: new ObjectId(req.session.userId) });
-
-            if (!user) {
-                console.error("Användare inte hittad");
-                return res.status(401).json({ message: 'Ej autentiserad' });
-            }
-
-            // Lägg till hela användarobjektet till req.user
-            req.user = { _id: user._id, email: user.email }; 
-            console.log("Authenticated user /middleware:", req.user); // Logga användaren för felsökning
-            return next();
-
-        } catch (error) {
-            console.error("Fel vid hämtning av användare:", error);
-            return res.status(500).json({ message: 'Serverfel vid autentisering' });
+    jwt.verify(token, secretKey , (err, user) => {
+        if (err) {
+            console.log("Token verifieringsfel:", err); 
+            return res.status(401).json({ message: 'Token är ogiltig' });
         }
-    }
-
-    res.status(401).json({ message: 'Ej autentiserad' });
+        console.log("Dekodad token:", user);
+        req.user = user; // Sätt användar-ID i `req.user`
+        next();
+    });
 };
 
 

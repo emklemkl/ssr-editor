@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const secretKey = process.env.JWT_SECRET || 'din_hemliga_nyckel';
+const secretKey = process.env.JWT_SECRET || 'yes';
 const saltRounds = 10;
 
 // Generera JWT-token vid inloggning
