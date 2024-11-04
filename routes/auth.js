@@ -7,6 +7,7 @@ import 'dotenv/config';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
+const BASE_URL = process.env.BASE_URL;
 
 // Registrera användare
 router.post('/register', async (req, res) => {
@@ -37,14 +38,16 @@ router.post('/login', async (req, res) => {
         { id: user._id, email: user.email }, 
         JWT_SECRET, 
         { expiresIn: '1h' }); // Skapa en JWT-token
-      res.json({ token, redirectUrl: 'http://localhost:4200/' });
+    res.json({ token, redirectUrl: `${BASE_URL}` });
   } else {
       res.status(401).json({ message: 'Ogiltigt användarnamn eller lösenord' });
   }
 });
 
 router.get('/me', userIsAuthenticated, async (req, res) => {
+  console.log('Användar-ID från token:', req.user.id);
   const user = await getUserById(req.user.id); // Hämta användare med ID från JWT
+  console.log('Hämtad användare:', user);
   
   if (!user) {
       return res.status(404).json({ message: "Användaren hittades inte" });

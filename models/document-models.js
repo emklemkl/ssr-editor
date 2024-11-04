@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb';
 import { connectDb, getCollection } from '../data/database.js'; // Importera din databasmodul
 
 // Hämta databasen och `user`-kollektionen

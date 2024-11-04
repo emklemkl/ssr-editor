@@ -77,15 +77,8 @@ router.put("/update", userIsAuthenticated, async (req, res) => {
 });
 
 router.get("/all", userIsAuthenticated, async (req, res) => {
-    console.log("Authenticated user /all:", req.user);
-    console.log("Authenticated user /all - mail:", req.user.email);
     try {
         const collection = await getDocumentCollection();
-
-        console.log("Querying documents for user:", {
-            ownerId: req.user.id,
-            editors: req.user.email,
-        });
 
         const documents = await collection.find({
             $or: [
@@ -155,8 +148,8 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
             );
         }
         
-        const inviteLink = `http://localhost:4200/register?redirect=${encodeURIComponent(`http://localhost:5000/document/${document._id}`)}`;
-        // const inviteLink = `${process.env.BASE_URL}/register?redirect=${encodeURIComponent(`${process.env.BASE_URL}/document/${document._id}`)}`;
+        // const inviteLink = `http://localhost:4200/register?redirect=${encodeURIComponent(`http://localhost:5000/document/${document._id}`)}`;
+        const inviteLink = `${process.env.BASE_URL}/register?redirect=${encodeURIComponent(`${process.env.API_URL}/document/${document._id}`)}`;
 
         const mailOptions = {
             from: 'pulseproject23bth@gmail.com',
@@ -169,6 +162,7 @@ router.post('/:id/invite', userIsAuthenticated, async (req, res) => {
         await transporter.sendMail(mailOptions);
 
         res.status(200).send({ message: 'Invitation sent successfully!' });
+
     } catch (error) {
         console.error("Error inviting editor:", error);
         res.status(500).send({ error: "An error occurred while inviting the editor." });
